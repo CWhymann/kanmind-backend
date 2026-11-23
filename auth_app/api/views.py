@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
+from auth_app.models import User
 from .serializers import RegisterSerializer
 
 
@@ -45,3 +46,21 @@ class LoginView(APIView):
             {"error": "Invalid credentials"}, 
             status=status.HTTP_401_UNAUTHORIZED
         )
+
+
+class EmailCheckView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        email = request.query_params.get("email")
+        if not email:
+            return Response(
+                {"error": "Email parameter is required."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        email_exists = User.objects.filter(email=email).exists()
+        return Response(
+            {"email_exists": email_exists}, 
+            status=status.HTTP_200_OK
+        )    
