@@ -3,11 +3,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from kanban_app.models import Board, Task, Comment
 from .serializers import BoardSerializer, TaskSerializer, CommentSerializer
+from .permissions import IsBoardOwner, IsTaskOwner, IsCommentOwner
 
 
 class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsBoardOwner]
 
     def get_queryset(self):
         return Board.objects.filter(owner=self.request.user)
@@ -18,7 +19,7 @@ class BoardViewSet(viewsets.ModelViewSet):
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTaskOwner]
 
     def get_queryset(self):
         return Task.objects.filter(board__owner=self.request.user)
@@ -38,7 +39,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCommentOwner]
 
     def get_queryset(self):
         task_id = self.kwargs.get("task_id")
